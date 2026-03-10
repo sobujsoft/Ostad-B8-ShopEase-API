@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email');
             $table->string('phone', 20)->nullable();
-            $table->json('shipping_address')->nullable();
+            $table->string('shipping_address',255)->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
