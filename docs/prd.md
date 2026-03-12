@@ -802,7 +802,6 @@ settings (key-value store)
 | ---------- | --------------- | ------------------------------- |
 | id         | BIGINT UNSIGNED | PK, Auto Increment              |
 | user_id    | BIGINT UNSIGNED | FK → users.id, NULLABLE, UNIQUE |
-| cart_id    | BIGINT UNSIGNED | FK → carts.id, NOT NULL         |
 | product_id | BIGINT UNSIGNED | FK → products.id, NOT NULL      |
 | quantity   | INT UNSIGNED    | NOT NULL, DEFAULT 1             |
 | unit_price | DECIMAL(10,2)   | NOT NULL                        |
