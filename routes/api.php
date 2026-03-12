@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\V1\CategoryController;
 use App\Http\Controllers\V1\ProductController;
+use App\Http\Controllers\V1\SectionController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -39,6 +40,14 @@ Route::prefix('v1')->group(function () {
             Route::post('/{product}/images', [ProductController::class, 'storeImage']);
             Route::post('/{product}/images/{image}', [ProductController::class, 'updateImage']);
             Route::delete('/{product}/images/{image}', [ProductController::class, 'destroyImage']);
+        });
+
+        Route::prefix('sections')->group(function () {
+            Route::get('/', [SectionController::class, 'index']);
+            Route::get('/{section}', [SectionController::class, 'show']);
+            Route::post('/{section}/products', [SectionController::class, 'assignProduct']);
+            Route::patch('/{section}/products/{id}', [SectionController::class, 'updateProduct']);
+            Route::delete('/{section}/products/{id}', [SectionController::class, 'removeProduct']);
         });
 
     });

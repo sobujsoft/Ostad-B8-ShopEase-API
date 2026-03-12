@@ -1,0 +1,291 @@
+{
+	"info": {
+		"name": "ShopEase - Section API",
+		"description": "Curated Section management API endpoints for ShopEase E-commerce application.\n\n**Base URL:** `{{base_url}}/api/v1`\n\n**Authentication:** All endpoints require Bearer token (Sanctum). Get the token from the Login endpoint — it is automatically saved to the `token` collection variable.\n\n**Valid Sections:** `best_sellers`, `new_arrivals`\n\n**Rules:**\n- A product can only be assigned to **one** section at a time.\n- Each section supports a **maximum of 8 products**.\n\n**Collection Variables:**\n- `base_url` — server base URL\n- `token` — Sanctum bearer token (auto-set on Login)\n- `section_name` — section key to target (`best_sellers` or `new_arrivals`)\n- `section_product_id` — auto-set when a product is assigned to a section",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "section_name",
+			"value": "best_sellers",
+			"type": "string"
+		},
+		{
+			"key": "section_product_id",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.token) {",
+									"    pm.collectionVariables.set('token', jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@shopease.com\",\n    \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "login"]
+						},
+						"description": "Login to get the auth token. The token is automatically saved to the `token` collection variable."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sections",
+			"item": [
+				{
+					"name": "List All Sections",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/sections",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sections"]
+						},
+						"description": "Get all sections (`best_sellers` and `new_arrivals`) each with their assigned products ordered by `sort_order`. **Requires authentication.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Show Section - Best Sellers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/sections/best_sellers",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sections", "best_sellers"]
+						},
+						"description": "Get the `best_sellers` section with all its assigned products ordered by `sort_order`. **Requires authentication.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Show Section - New Arrivals",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/sections/new_arrivals",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sections", "new_arrivals"]
+						},
+						"description": "Get the `new_arrivals` section with all its assigned products ordered by `sort_order`. **Requires authentication.**"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Section Products",
+			"item": [
+				{
+					"name": "Assign Product to Section",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    pm.collectionVariables.set('section_product_id', jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"product_id\": [2, 4, 5],\n    \"sort_order\": [0, 1, 2]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/sections/{{section_name}}/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sections", "{{section_name}}", "products"]
+						},
+						"description": "Assign one or more products to the specified section in a single request. **Requires authentication.**\n\n**Rules:**\n- `product_id` is a required array of product IDs.\n- Each product must exist and must **not** already be assigned to any section.\n- Duplicate IDs within the same request are rejected.\n- The total number of new products must not exceed the section's remaining capacity (max 8 per section).\n- `sort_order` is an optional array aligned by index with `product_id`. If omitted or shorter than `product_id`, missing positions default to their array index (0, 1, 2…).\n\nThe last created section-product record ID is automatically saved to the `section_product_id` collection variable.\n\n**Body fields:**\n- `product_id` *(required)* — Array of product IDs to assign, e.g. `[2, 4, 5]`.\n- `sort_order` *(optional)* — Array of sort positions aligned with `product_id`, e.g. `[0, 1, 2]`."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Section Product (Sort Order)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sort_order\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/sections/{{section_name}}/products/{{section_product_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sections", "{{section_name}}", "products", "{{section_product_id}}"]
+						},
+						"description": "Update the `sort_order` of a product within the specified section. **Requires authentication.**\n\nThe record must belong to the given section — a product in `best_sellers` cannot be updated via the `new_arrivals` path.\n\n**Body fields:**\n- `sort_order` *(required)* — New sort position (integer, min: 0)."
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Product from Section",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/sections/{{section_name}}/products/{{section_product_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "sections", "{{section_name}}", "products", "{{section_product_id}}"]
+						},
+						"description": "Remove a product from the specified section. **Requires authentication.**\n\nThis only removes the section assignment — the product itself is **not** deleted. After removal the product can be re-assigned to any section."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
