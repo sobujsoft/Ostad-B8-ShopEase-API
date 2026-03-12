@@ -218,12 +218,6 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "_method",
-									"value": "PUT",
-									"type": "text",
-									"description": "Method spoofing for PUT via form-data."
-								},
-								{
 									"key": "name",
 									"value": "Electronics & Gadgets",
 									"type": "text",
@@ -260,7 +254,7 @@
 							"host": ["{{base_url}}"],
 							"path": ["api", "v1", "categories", "{{category_id}}"]
 						},
-						"description": "Update an existing category. **Requires authentication.** Uses POST with `_method=PUT` for form-data file upload support. Old image is automatically deleted when a new one is uploaded."
+						"description": "Update an existing category. **Requires authentication.** Uses POST for reliable file upload support. Old image is automatically deleted when a new one is uploaded."
 					},
 					"response": []
 				},

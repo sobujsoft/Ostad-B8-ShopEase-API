@@ -37,7 +37,8 @@ class CategoryController extends Controller
             $data['slug'] = Str::slug($data['name']);
 
             if ($request->hasFile('image')) {
-                $data['image'] = $request->file('image')->store('categories', 'public');
+                $extension = $request->file('image')->getClientOriginalExtension();
+                $data['image'] = $request->file('image')->storeAs('categories', $data['slug'] . '.' . $extension, 'public');
             }
 
             $category = Category::create($data);
@@ -76,16 +77,20 @@ class CategoryController extends Controller
         try {
             $category = Category::findOrFail($id);
             $data = $request->validated();
+            $oldImage = $category->image;
 
             if (isset($data['name'])) {
                 $data['slug'] = Str::slug($data['name']);
             }
 
             if ($request->hasFile('image')) {
-                if ($category->image) {
-                    Storage::disk('public')->delete($category->image);
+                $slug = $data['slug'] ?? $category->slug;
+                $extension = $request->file('image')->getClientOriginalExtension();
+                $data['image'] = $request->file('image')->storeAs('categories', $slug . '.' . $extension, 'public');
+
+                if ($oldImage && Storage::disk('public')->exists($oldImage)) {
+                    Storage::disk('public')->delete($oldImage);
                 }
-                $data['image'] = $request->file('image')->store('categories', 'public');
             }
 
             $category->update($data);
