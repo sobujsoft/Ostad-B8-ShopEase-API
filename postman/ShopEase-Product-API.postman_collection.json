@@ -1,0 +1,634 @@
+{
+	"info": {
+		"name": "ShopEase - Product API",
+		"description": "Product CRUD, Toggle Active/Stock, and Product Image CRUD endpoints for ShopEase E-commerce application.\n\n**Base URL:** `{{base_url}}/api/v1`\n\n**Authentication:** All endpoints require Bearer token (Sanctum). Get the token from the Login endpoint — it is automatically saved to the `token` collection variable.\n\n**Collection Variables:**\n- `base_url` — server base URL\n- `token` — Sanctum bearer token (auto-set on Login)\n- `product_id` — auto-set when a product is created\n- `image_id` — auto-set when a product image is uploaded",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "product_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "image_id",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.token) {",
+									"    pm.collectionVariables.set('token', jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@shopease.com\",\n    \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "login"]
+						},
+						"description": "Login to get the auth token. The token is automatically saved to the `token` collection variable."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "List Products",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products?page=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "products"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination (15 items per page)."
+								}
+							]
+						},
+						"description": "Get a paginated list of all products. Each product includes its associated images. **Requires authentication.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Show Product",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/{{product_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "products", "{{product_id}}"]
+						},
+						"description": "Get a single product by ID with all associated images. **Requires authentication.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    pm.collectionVariables.set('product_id', jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "category_id",
+									"value": "1",
+									"type": "text",
+									"description": "Required. ID of an existing category."
+								},
+								{
+									"key": "name",
+									"value": "Wireless Bluetooth Headphones",
+									"type": "text",
+									"description": "Required. Product name (slug auto-generated)."
+								},
+								{
+									"key": "code",
+									"value": "WBH-001",
+									"type": "text",
+									"description": "Required. Unique product code (max 50 characters)."
+								},
+								{
+									"key": "price",
+									"value": "1999.99",
+									"type": "text",
+									"description": "Required. Product price."
+								},
+								{
+									"key": "discount_price",
+									"value": "1499.99",
+									"type": "text",
+									"description": "Optional. Discounted price."
+								},
+								{
+									"key": "color",
+									"value": "Black",
+									"type": "text",
+									"description": "Optional. Product color."
+								},
+								{
+									"key": "size",
+									"value": "One Size",
+									"type": "text",
+									"description": "Optional. Product size."
+								},
+								{
+									"key": "short_description",
+									"value": "Premium wireless headphones with noise cancellation and 30-hour battery life.",
+									"type": "text",
+									"description": "Optional. Short description (max 500 characters)."
+								},
+								{
+									"key": "description",
+									"value": "Experience crystal-clear audio with our premium wireless headphones. Features active noise cancellation, Bluetooth 5.0, and a comfortable over-ear design.",
+									"type": "text",
+									"description": "Optional. Full product description."
+								},
+								{
+									"key": "stock_status",
+									"value": "in_stock",
+									"type": "text",
+									"description": "Optional. Allowed values: in_stock, out_of_stock. Default: in_stock."
+								},
+								{
+									"key": "is_active",
+									"value": "1",
+									"type": "text",
+									"description": "Optional. 1 = active, 0 = inactive. Default: 1."
+								},
+								{
+									"key": "meta_title",
+									"value": "Wireless Bluetooth Headphones - Best Price",
+									"type": "text",
+									"description": "Optional. SEO meta title (max 70 characters)."
+								},
+								{
+									"key": "meta_description",
+									"value": "Buy the best wireless Bluetooth headphones with noise cancellation at the lowest price.",
+									"type": "text",
+									"description": "Optional. SEO meta description (max 160 characters)."
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "products"]
+						},
+						"description": "Create a new product. **Requires authentication.** Slug is auto-generated from the name. The new product ID is automatically saved to the `product_id` collection variable."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "category_id",
+									"value": "1",
+									"type": "text",
+									"description": "Optional. Change the product category.",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "Wireless Bluetooth Headphones Pro",
+									"type": "text",
+									"description": "Optional. Updated product name (slug auto-regenerated)."
+								},
+								{
+									"key": "code",
+									"value": "WBH-001-PRO",
+									"type": "text",
+									"description": "Optional. Updated product code (must be unique).",
+									"disabled": true
+								},
+								{
+									"key": "price",
+									"value": "2199.99",
+									"type": "text",
+									"description": "Optional. Updated price."
+								},
+								{
+									"key": "discount_price",
+									"value": "1799.99",
+									"type": "text",
+									"description": "Optional. Updated discounted price."
+								},
+								{
+									"key": "color",
+									"value": "Midnight Blue",
+									"type": "text",
+									"description": "Optional. Updated color.",
+									"disabled": true
+								},
+								{
+									"key": "size",
+									"value": "One Size",
+									"type": "text",
+									"description": "Optional. Updated size.",
+									"disabled": true
+								},
+								{
+									"key": "short_description",
+									"value": "Updated short description.",
+									"type": "text",
+									"description": "Optional. Updated short description.",
+									"disabled": true
+								},
+								{
+									"key": "description",
+									"value": "Updated full description.",
+									"type": "text",
+									"description": "Optional. Updated full description.",
+									"disabled": true
+								},
+								{
+									"key": "stock_status",
+									"value": "in_stock",
+									"type": "text",
+									"description": "Optional. in_stock or out_of_stock.",
+									"disabled": true
+								},
+								{
+									"key": "is_active",
+									"value": "1",
+									"type": "text",
+									"description": "Optional. 1 = active, 0 = inactive.",
+									"disabled": true
+								},
+								{
+									"key": "meta_title",
+									"value": "Wireless Bluetooth Headphones Pro",
+									"type": "text",
+									"description": "Optional. Updated SEO meta title.",
+									"disabled": true
+								},
+								{
+									"key": "meta_description",
+									"value": "Updated SEO meta description.",
+									"type": "text",
+									"description": "Optional. Updated SEO meta description.",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/{{product_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "products", "{{product_id}}"]
+						},
+						"description": "Update an existing product. **Requires authentication.** All fields are optional (partial update). Uses POST for reliable form-data support. Slug is regenerated automatically if the name is changed."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/{{product_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "products", "{{product_id}}"]
+						},
+						"description": "Delete a product by ID. **Requires authentication.** All associated product images are also deleted from storage."
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Active",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/{{product_id}}/toggle-active",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "products", "{{product_id}}", "toggle-active"]
+						},
+						"description": "Toggle the `is_active` status of a product. **Requires authentication.** No request body needed. Returns the updated product with the new status."
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Stock",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/{{product_id}}/toggle-stock",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "products", "{{product_id}}", "toggle-stock"]
+						},
+						"description": "Toggle the `stock_status` of a product between `in_stock` and `out_of_stock`. **Requires authentication.** No request body needed."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Product Images",
+			"item": [
+				{
+					"name": "Upload Product Image",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    pm.collectionVariables.set('image_id', jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "",
+									"description": "Required. Image file (jpeg, png, jpg, gif, webp). Max 2MB."
+								},
+								{
+									"key": "sort_order",
+									"value": "0",
+									"type": "text",
+									"description": "Optional. Display sort order. Default: 0."
+								},
+								{
+									"key": "is_primary",
+									"value": "1",
+									"type": "text",
+									"description": "Optional. Set as the primary image. 1 = true, 0 = false. Setting this to 1 will unset all other primary images for this product."
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/{{product_id}}/images",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "products", "{{product_id}}", "images"]
+						},
+						"description": "Upload a new image for a product. **Requires authentication.** Image is stored at `storage/app/public/products/{product-slug}/{uuid}.ext`. If `is_primary` is true, all other images for this product are automatically unset as primary. The new image ID is saved to the `image_id` collection variable."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product Image",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "",
+									"description": "Optional. Replacement image file. The old file is deleted from storage."
+								},
+								{
+									"key": "sort_order",
+									"value": "1",
+									"type": "text",
+									"description": "Optional. Updated sort order."
+								},
+								{
+									"key": "is_primary",
+									"value": "1",
+									"type": "text",
+									"description": "Optional. Set as primary image. Setting to 1 unsets all other primary images for this product."
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/{{product_id}}/images/{{image_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "products", "{{product_id}}", "images", "{{image_id}}"]
+						},
+						"description": "Update an existing product image's file or metadata. **Requires authentication.** All fields are optional. If a new image file is provided the old file is deleted from storage automatically."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product Image",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products/{{product_id}}/images/{{image_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "products", "{{product_id}}", "images", "{{image_id}}"]
+						},
+						"description": "Delete a product image by ID. **Requires authentication.** The image file is also deleted from storage."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

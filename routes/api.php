@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\V1\CategoryController;
+use App\Http\Controllers\V1\ProductController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -23,6 +24,21 @@ Route::prefix('v1')->group(function () {
             Route::post('/', [CategoryController::class, 'store']);
             Route::post('/{category}', [CategoryController::class, 'update']);
             Route::delete('/{category}', [CategoryController::class, 'destroy']);
+        });
+
+        Route::prefix('products')->group(function () {
+            Route::get('/', [ProductController::class, 'index']);
+            Route::post('/', [ProductController::class, 'store']);
+            Route::get('/{product}', [ProductController::class, 'show']);
+            Route::post('/{product}', [ProductController::class, 'update']);
+            Route::delete('/{product}', [ProductController::class, 'destroy']);
+            Route::patch('/{product}/toggle-active', [ProductController::class, 'toggleActive']);
+            Route::patch('/{product}/toggle-stock', [ProductController::class, 'toggleStock']);
+
+            // Product images
+            Route::post('/{product}/images', [ProductController::class, 'storeImage']);
+            Route::post('/{product}/images/{image}', [ProductController::class, 'updateImage']);
+            Route::delete('/{product}/images/{image}', [ProductController::class, 'destroyImage']);
         });
 
     });
