@@ -1,0 +1,293 @@
+{
+	"info": {
+		"name": "ShopEase - Category API",
+		"description": "Category CRUD API endpoints for ShopEase E-commerce application.\n\n**Base URL:** `{{base_url}}/api/v1`\n\n**Authentication:** Store, Update, and Delete endpoints require Bearer token (Sanctum). Get the token from the Login endpoint and set it in the `token` collection variable.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "category_id",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.token) {",
+									"    pm.collectionVariables.set('token', jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@shopease.com\",\n    \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "login"]
+						},
+						"description": "Login to get the auth token. The token is automatically saved to the `token` collection variable."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "List Categories",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories?page=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "categories"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								}
+							]
+						},
+						"description": "Get a paginated list of all categories. **No authentication required.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Show Category",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories/{{category_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "categories", "{{category_id}}"]
+						},
+						"description": "Get a single category by ID. **No authentication required.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    pm.collectionVariables.set('category_id', jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Electronics",
+									"type": "text",
+									"description": "Required. Category name (slug auto-generated)."
+								},
+								{
+									"key": "description",
+									"value": "Electronic devices and gadgets",
+									"type": "text",
+									"description": "Optional. Category description."
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "",
+									"description": "Optional. Image file (jpeg, png, jpg, gif, webp). Max 2MB."
+								},
+								{
+									"key": "is_active",
+									"value": "1",
+									"type": "text",
+									"description": "Optional. 1 = active, 0 = inactive. Default: 1."
+								},
+								{
+									"key": "sort_order",
+									"value": "0",
+									"type": "text",
+									"description": "Optional. Sort order. Default: 0."
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "categories"]
+						},
+						"description": "Create a new category. **Requires authentication.** Slug is auto-generated from the name. Uses form-data for image upload."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Electronics & Gadgets",
+									"type": "text",
+									"description": "Optional. Updated category name (slug auto-regenerated)."
+								},
+								{
+									"key": "description",
+									"value": "Updated description for electronics",
+									"type": "text",
+									"description": "Optional. Updated description."
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "",
+									"description": "Optional. New image (old image is deleted). Max 2MB."
+								},
+								{
+									"key": "is_active",
+									"value": "1",
+									"type": "text",
+									"description": "Optional. 1 = active, 0 = inactive."
+								},
+								{
+									"key": "sort_order",
+									"value": "1",
+									"type": "text",
+									"description": "Optional. Sort order."
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories/{{category_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "categories", "{{category_id}}"]
+						},
+						"description": "Update an existing category. **Requires authentication.** Uses POST for reliable file upload support. Old image is automatically deleted when a new one is uploaded."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/categories/{{category_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "categories", "{{category_id}}"]
+						},
+						"description": "Delete a category (soft delete). **Requires authentication.** The category image is also deleted from storage."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
