@@ -16,14 +16,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // API V1 Routes
 Route::prefix('v1')->group(function () {
-    // Public category routes
-    Route::get('/categories', [CategoryController::class, 'index']);
-    Route::get('/categories/{category}', [CategoryController::class, 'show']);
-
-    // Protected category routes
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/categories', [CategoryController::class, 'store']);
-        Route::post('/categories/{category}', [CategoryController::class, 'update']);
-        Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+        Route::prefix('categories')->group(function () {
+            Route::get('/', [CategoryController::class, 'index']);
+            Route::get('/{category}', [CategoryController::class, 'show']);
+            Route::post('/', [CategoryController::class, 'store']);
+            Route::post('/{category}', [CategoryController::class, 'update']);
+            Route::delete('/{category}', [CategoryController::class, 'destroy']);
+        });
+
     });
 });
