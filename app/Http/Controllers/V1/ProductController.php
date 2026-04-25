@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -261,6 +262,78 @@ class ProductController extends Controller
                 'message' => 'Failed to delete product image.',
                 'error'   => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Storefront
+    // -------------------------------------------------------------------------
+
+    public function storefront(Request $request): JsonResponse
+    {
+        try {
+            $query = Product::with('images')->where('is_active', true);
+
+            if ($search = $request->query('search')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('code', 'like', "%{$search}%");
+                });
+            }
+
+            if ($categoryId = $request->query('category_id')) {
+                $query->where('category_id', $categoryId);
+            }
+
+            $sort = $request->query('sort', 'newest');
+            $query = match ($sort) {
+                'price_asc'  => $query->orderBy('price'),
+                'price_desc' => $query->orderByDesc('price'),
+                default      => $query->latest(),
+            };
+
+            $products = $query->paginate(12);
+
+            return response()->json([
+                'message' => 'Products retrieved successfully.',
+                'data'    => $products,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve products.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function storefrontShow(string $slug): JsonResponse
+    {
+        try {
+            $product = Product::with(['images', 'category'])
+                ->where('slug', $slug)
+                ->where('is_active', true)
+                ->firstOrFail();
+
+            $relatedProducts = Product::with('images')
+                ->where('category_id', $product->category_id)
+                ->where('id', '!=', $product->id)
+                ->where('is_active', true)
+                ->inRandomOrder()
+                ->limit(4)
+                ->get();
+
+            return response()->json([
+                'message' => 'Product retrieved successfully.',
+                'data'    => [
+                    'product'          => $product,
+                    'related_products' => $relatedProducts,
+                ],
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Product not found.',
+                'error'   => $e->getMessage(),
+            ], 404);
         }
     }
 }

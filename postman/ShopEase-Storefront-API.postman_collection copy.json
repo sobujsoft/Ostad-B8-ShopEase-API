@@ -1,0 +1,453 @@
+{
+	"info": {
+		"name": "ShopEase Storefront API",
+		"description": "Public (open) storefront API endpoints for the ShopEase e-commerce application. No authentication required.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "customer_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Hero Banners",
+			"item": [
+				{
+					"name": "Get Hero Banners",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/storefront/hero-banners",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "hero-banners"]
+						},
+						"description": "Returns all active hero banners ordered by sort_order."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get Categories",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/storefront/categories",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "categories"]
+						},
+						"description": "Returns all active categories with active product counts, ordered by sort_order."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sections",
+			"item": [
+				{
+					"name": "Get Sections",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/storefront/sections",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "sections"]
+						},
+						"description": "Returns all sections (best_sellers, new_arrivals) with their active products and images."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products (Shop Page)",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/storefront/products",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "products"]
+						},
+						"description": "Returns all active products with images. Paginated (12 per page), sorted by newest first."
+					},
+					"response": []
+				},
+				{
+					"name": "Search Products",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/storefront/products?search=headphone",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "products"],
+							"query": [
+								{
+									"key": "search",
+									"value": "headphone",
+									"description": "Search by product name or code"
+								}
+							]
+						},
+						"description": "Search products by name or code."
+					},
+					"response": []
+				},
+				{
+					"name": "Filter by Category",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/storefront/products?category_id=1",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "products"],
+							"query": [
+								{
+									"key": "category_id",
+									"value": "1",
+									"description": "Filter by category ID"
+								}
+							]
+						},
+						"description": "Filter products by a specific category."
+					},
+					"response": []
+				},
+				{
+					"name": "Sort by Price (Low to High)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/storefront/products?sort=price_asc",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "products"],
+							"query": [
+								{
+									"key": "sort",
+									"value": "price_asc",
+									"description": "Sort: newest (default), price_asc, price_desc"
+								}
+							]
+						},
+						"description": "Sort products by price ascending."
+					},
+					"response": []
+				},
+				{
+					"name": "Sort by Price (High to Low)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/storefront/products?sort=price_desc",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "products"],
+							"query": [
+								{
+									"key": "sort",
+									"value": "price_desc",
+									"description": "Sort: newest (default), price_asc, price_desc"
+								}
+							]
+						},
+						"description": "Sort products by price descending."
+					},
+					"response": []
+				},
+				{
+					"name": "Combined Filters",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/storefront/products?search=camera&category_id=1&sort=price_asc&page=1",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "products"],
+							"query": [
+								{
+									"key": "search",
+									"value": "camera",
+									"description": "Search by product name or code"
+								},
+								{
+									"key": "category_id",
+									"value": "1",
+									"description": "Filter by category ID"
+								},
+								{
+									"key": "sort",
+									"value": "price_asc",
+									"description": "Sort: newest (default), price_asc, price_desc"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								}
+							]
+						},
+					"description": "Combine search, category filter, sorting, and pagination."
+				},
+				"response": []
+			}
+		]
+		},
+		{
+			"name": "Product Details",
+			"item": [
+				{
+					"name": "Get Product Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/storefront/products/wireless-bluetooth-headphones-pro",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "products", "wireless-bluetooth-headphones-pro"]
+						},
+						"description": "Returns a single active product by slug with all images, category info, and 4 related products from the same category."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Customer Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.token) {",
+									"    pm.collectionVariables.set('customer_token', jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"phone\": \"01712345678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/storefront/register",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "register"]
+						},
+						"description": "Register a new customer. Creates both user (role: customer) and customer records. Auto-saves token to collection variable."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.token) {",
+									"    pm.collectionVariables.set('customer_token', jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/storefront/login",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "login"]
+						},
+						"description": "Login as a customer. Only users with role 'customer' can login. Auto-saves token to collection variable."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customer_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/storefront/logout",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "logout"]
+						},
+						"description": "Logout the authenticated customer. Requires Bearer token."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customer_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/storefront/profile",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "profile"]
+						},
+						"description": "Get authenticated customer profile with customer details."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customer_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Updated\",\n    \"phone\": \"01798765432\",\n    \"shipping_address\": \"123 Main Street, Dhaka\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/storefront/profile",
+							"host": ["{{base_url}}"],
+							"path": ["storefront", "profile"]
+						},
+						"description": "Update customer profile. All fields are optional."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

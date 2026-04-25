@@ -185,4 +185,32 @@ class SectionController extends Controller
             ], 500);
         }
     }
+
+    public function storefront(): JsonResponse
+    {
+        try {
+            $sections = [];
+
+            foreach (self::VALID_SECTIONS as $sectionName) {
+                $sections[] = [
+                    'section_name' => $sectionName,
+                    'products'     => SectionProduct::with(['product.images'])
+                        ->where('section_name', $sectionName)
+                        ->whereHas('product', fn ($q) => $q->where('is_active', true))
+                        ->orderBy('sort_order')
+                        ->get(),
+                ];
+            }
+
+            return response()->json([
+                'message' => 'Sections retrieved successfully.',
+                'data'    => $sections,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve sections.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

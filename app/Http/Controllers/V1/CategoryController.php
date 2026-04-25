@@ -16,7 +16,7 @@ class CategoryController extends Controller
     public function index(): JsonResponse
     {
         try {
-            $categories = Category::latest()->paginate(15);
+            $categories = Category::latest()->paginate(10);
 
             return response()->json([
                 'message' => 'Categories retrieved successfully.',
@@ -124,6 +124,26 @@ class CategoryController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Failed to delete category.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function storefront(): JsonResponse
+    {
+        try {
+            $categories = Category::where('is_active', true)
+                ->withCount(['products' => fn ($q) => $q->where('is_active', true)])
+                ->orderBy('sort_order')
+                ->get();
+
+            return response()->json([
+                'message' => 'Categories retrieved successfully.',
+                'data'    => $categories,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve categories.',
                 'error'   => $e->getMessage(),
             ], 500);
         }

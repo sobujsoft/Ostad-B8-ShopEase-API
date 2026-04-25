@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\V1\CartController;
 use App\Http\Controllers\V1\CategoryController;
+use App\Http\Controllers\V1\OrderController;
 use App\Http\Controllers\V1\ProductController;
+use App\Http\Controllers\V1\HeroBannerController;
 use App\Http\Controllers\V1\SectionController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +17,36 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+// Storefront Routes (Public)
+Route::prefix('storefront')->group(function () {
+    Route::get('/hero-banners', [HeroBannerController::class, 'storefront']);
+    Route::get('/categories', [CategoryController::class, 'storefront']);
+    Route::get('/sections', [SectionController::class, 'storefront']);
+    Route::get('/products', [ProductController::class, 'storefront']);
+    Route::get('/products/{slug}', [ProductController::class, 'storefrontShow']);
+
+    Route::post('/register', [AuthController::class, 'customerRegister']);
+    Route::post('/login', [AuthController::class, 'customerLogin']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [AuthController::class, 'customerLogout']);
+        Route::get('/profile', [AuthController::class, 'customerProfile']);
+        Route::post('/profile', [AuthController::class, 'customerProfileUpdate']);
+
+        Route::prefix('cart')->group(function () {
+            Route::get('/', [CartController::class, 'index']);
+            Route::post('/', [CartController::class, 'store']);
+            Route::patch('/{cart}', [CartController::class, 'update']);
+            Route::delete('/{cart}', [CartController::class, 'destroy']);
+            Route::delete('/', [CartController::class, 'clear']);
+        });
+
+        Route::post('/checkout', [OrderController::class, 'placeOrder']);
+        Route::get('/orders', [OrderController::class, 'myOrders']);
+        Route::get('/orders/{orderNumber}', [OrderController::class, 'myOrderShow']);
+    });
 });
 
 // API V1 Routes
@@ -48,6 +81,15 @@ Route::prefix('v1')->group(function () {
             Route::post('/{section}/products', [SectionController::class, 'assignProduct']);
             Route::patch('/{section}/products/{id}', [SectionController::class, 'updateProduct']);
             Route::delete('/{section}/products/{id}', [SectionController::class, 'removeProduct']);
+        });
+
+        Route::prefix('hero-banners')->group(function () {
+            Route::get('/', [HeroBannerController::class, 'index']);
+            Route::post('/', [HeroBannerController::class, 'store']);
+            Route::get('/{heroBanner}', [HeroBannerController::class, 'show']);
+            Route::post('/{heroBanner}', [HeroBannerController::class, 'update']);
+            Route::delete('/{heroBanner}', [HeroBannerController::class, 'destroy']);
+            Route::patch('/{heroBanner}/toggle-active', [HeroBannerController::class, 'toggleActive']);
         });
 
     });

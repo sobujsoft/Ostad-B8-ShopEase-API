@@ -1,0 +1,378 @@
+{
+	"info": {
+		"name": "ShopEase - Hero Banner API",
+		"description": "Hero Banner CRUD API endpoints for ShopEase E-commerce application.\n\n**Base URL:** `{{base_url}}/api/v1`\n\n**Authentication:** All endpoints require Bearer token (Sanctum). Get the token from the Login endpoint and set it in the `token` collection variable.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "hero_banner_id",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.token) {",
+									"    pm.collectionVariables.set('token', jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@shopease.com\",\n    \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "login"]
+						},
+						"description": "Login to get the auth token. The token is automatically saved to the `token` collection variable."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Hero Banners",
+			"item": [
+				{
+					"name": "List Hero Banners",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/hero-banners?page=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "hero-banners"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								}
+							]
+						},
+						"description": "Get a paginated list of all hero banners. **Requires authentication.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Show Hero Banner",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/hero-banners/{{hero_banner_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "hero-banners", "{{hero_banner_id}}"]
+						},
+						"description": "Get a single hero banner by ID. **Requires authentication.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Hero Banner",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    pm.collectionVariables.set('hero_banner_id', jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "banner_img",
+									"type": "file",
+									"src": "",
+									"description": "Required. Banner image file (jpeg, png, jpg, gif, webp). Max 2MB."
+								},
+								{
+									"key": "badge_txt",
+									"value": "Up to 40% Off",
+									"type": "text",
+									"description": "Optional. Badge text displayed on the banner."
+								},
+								{
+									"key": "title",
+									"value": "Summer Sale Starts Now",
+									"type": "text",
+									"description": "Required. Banner main title."
+								},
+								{
+									"key": "subtitle",
+									"value": "Unbeatable deals on top brands. Limited time only — grab your favorites before they're gone.",
+									"type": "text",
+									"description": "Optional. Banner subtitle/description."
+								},
+								{
+									"key": "button_txt",
+									"value": "View Deals",
+									"type": "text",
+									"description": "Optional. Call-to-action button text."
+								},
+								{
+									"key": "button_url",
+									"value": "/deals",
+									"type": "text",
+									"description": "Optional. URL the button links to."
+								},
+								{
+									"key": "is_active",
+									"value": "1",
+									"type": "text",
+									"description": "Optional. 1 = active, 0 = inactive. Default: 1."
+								},
+								{
+									"key": "sort_order",
+									"value": "0",
+									"type": "text",
+									"description": "Optional. Display order. Default: 0."
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/hero-banners",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "hero-banners"]
+						},
+						"description": "Create a new hero banner. **Requires authentication.** Uses form-data for image upload. The created banner ID is automatically saved to the `hero_banner_id` collection variable."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Hero Banner",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "banner_img",
+									"type": "file",
+									"src": "",
+									"description": "Optional. New banner image (old image is deleted). Max 2MB."
+								},
+								{
+									"key": "badge_txt",
+									"value": "Up to 50% Off",
+									"type": "text",
+									"description": "Optional. Updated badge text."
+								},
+								{
+									"key": "title",
+									"value": "Winter Sale Starts Now",
+									"type": "text",
+									"description": "Optional. Updated banner title."
+								},
+								{
+									"key": "subtitle",
+									"value": "Don't miss our biggest winter clearance event. Shop now for amazing savings!",
+									"type": "text",
+									"description": "Optional. Updated subtitle."
+								},
+								{
+									"key": "button_txt",
+									"value": "Shop Now",
+									"type": "text",
+									"description": "Optional. Updated button text."
+								},
+								{
+									"key": "button_url",
+									"value": "/winter-sale",
+									"type": "text",
+									"description": "Optional. Updated button URL."
+								},
+								{
+									"key": "is_active",
+									"value": "1",
+									"type": "text",
+									"description": "Optional. 1 = active, 0 = inactive."
+								},
+								{
+									"key": "sort_order",
+									"value": "1",
+									"type": "text",
+									"description": "Optional. Updated sort order."
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/hero-banners/{{hero_banner_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "hero-banners", "{{hero_banner_id}}"]
+						},
+						"description": "Update an existing hero banner. **Requires authentication.** Uses POST for reliable file upload support. Old image is automatically deleted when a new one is uploaded."
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Active Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/hero-banners/{{hero_banner_id}}/toggle-active",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "hero-banners", "{{hero_banner_id}}", "toggle-active"]
+						},
+						"description": "Toggle the is_active status of a hero banner. **Requires authentication.** If active, it becomes inactive and vice versa."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Hero Banner",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/hero-banners/{{hero_banner_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "hero-banners", "{{hero_banner_id}}"]
+						},
+						"description": "Delete a hero banner. **Requires authentication.** The banner image is also deleted from storage."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
