@@ -18,7 +18,7 @@ class PlaceOrderRequest extends FormRequest
             'customer_email'   => ['required', 'string', 'email', 'max:255'],
             'customer_phone'   => ['required', 'string', 'max:20'],
             'shipping_address' => ['required', 'string', 'max:500'],
-            'payment_method'   => ['required', 'string', 'in:cod'],
+            'payment_method'   => ['required', 'string', 'in:cod,sslcommerz'],
         ];
     }
 }

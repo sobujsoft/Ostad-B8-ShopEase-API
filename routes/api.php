@@ -3,10 +3,13 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\V1\CartController;
 use App\Http\Controllers\V1\CategoryController;
+use App\Http\Controllers\V1\CustomerController;
+use App\Http\Controllers\V1\DashboardController;
 use App\Http\Controllers\V1\OrderController;
 use App\Http\Controllers\V1\ProductController;
 use App\Http\Controllers\V1\HeroBannerController;
 use App\Http\Controllers\V1\SectionController;
+use App\Http\Controllers\V1\SslcommerzController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -48,6 +51,17 @@ Route::prefix('storefront')->group(function () {
         Route::get('/orders/{orderNumber}', [OrderController::class, 'myOrderShow']);
     });
 });
+
+// SSLCommerz Callback Routes
+Route::controller(SslcommerzController::class)
+    ->prefix('sslcommerz')
+    ->name('sslc.')
+    ->group(function () {
+        Route::post('success', 'success')->name('success');
+        Route::post('failure', 'failure')->name('failure');
+        Route::post('cancel', 'cancel')->name('cancel');
+        Route::post('ipn', 'ipn')->name('ipn');
+    });
 
 // API V1 Routes
 Route::prefix('v1')->group(function () {
@@ -91,6 +105,21 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{heroBanner}', [HeroBannerController::class, 'destroy']);
             Route::patch('/{heroBanner}/toggle-active', [HeroBannerController::class, 'toggleActive']);
         });
+
+        Route::prefix('orders')->group(function () {
+            Route::get('/', [OrderController::class, 'index']);
+            Route::get('/{order}', [OrderController::class, 'show']);
+            Route::patch('/{order}/status', [OrderController::class, 'updateStatus']);
+        });
+
+        Route::prefix('customers')->group(function () {
+            Route::get('/', [CustomerController::class, 'index']);
+            Route::get('/{customer}', [CustomerController::class, 'show']);
+            Route::patch('/{customer}/toggle-active', [CustomerController::class, 'toggleActive']);
+            Route::delete('/{customer}', [CustomerController::class, 'destroy']);
+        });
+
+        Route::get('/dashboard', [DashboardController::class, 'index']);
 
     });
 });

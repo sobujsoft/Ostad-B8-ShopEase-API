@@ -1,0 +1,417 @@
+{
+	"info": {
+		"name": "ShopEase - SSLCommerz Payment API",
+		"description": "SSLCommerz payment gateway integration testing for ShopEase E-commerce.\n\n**Flow:**\n1. Login as customer\n2. Add item(s) to cart\n3. Place order with `payment_method: sslcommerz`\n4. Open the returned `payment_url` in a browser to complete payment on SSLCommerz sandbox\n5. After payment, SSLCommerz posts back to the callback endpoints\n\n**Sandbox Credentials:**\n- Store ID: `meraj69f0d3250f828`\n- Store Password: `meraj69f0d3250f828@ssl`\n- API Domain: `https://sandbox.sslcommerz.com`",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "customer_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "product_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "order_number",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "payment_url",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Setup",
+			"item": [
+				{
+					"name": "Customer Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.token) {",
+									"    pm.collectionVariables.set('customer_token', jsonData.data.token);",
+									"    console.log('Token saved: ' + jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/storefront/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "storefront", "login"]
+						},
+						"description": "Login as a customer to get auth token. Auto-saves to `customer_token` variable."
+					},
+					"response": []
+				},
+				{
+					"name": "Add Item to Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customer_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"product_id\": {{product_id}},\n    \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/storefront/cart",
+							"host": ["{{base_url}}"],
+							"path": ["api", "storefront", "cart"]
+						},
+						"description": "Add a product to the cart before checkout. Change `product_id` variable or body as needed."
+					},
+					"response": []
+				},
+				{
+					"name": "View Cart",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customer_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/storefront/cart",
+							"host": ["{{base_url}}"],
+							"path": ["api", "storefront", "cart"]
+						},
+						"description": "Verify cart has items before proceeding to checkout."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Checkout with SSLCommerz",
+			"item": [
+				{
+					"name": "Place Order (SSLCommerz)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data) {",
+									"    if (jsonData.data.payment_url) {",
+									"        pm.collectionVariables.set('payment_url', jsonData.data.payment_url);",
+									"        console.log('Payment URL: ' + jsonData.data.payment_url);",
+									"    }",
+									"    if (jsonData.data.order && jsonData.data.order.order_number) {",
+									"        pm.collectionVariables.set('order_number', jsonData.data.order.order_number);",
+									"        console.log('Order Number: ' + jsonData.data.order.order_number);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customer_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customer_name\": \"John Doe\",\n    \"customer_email\": \"john@example.com\",\n    \"customer_phone\": \"01712345678\",\n    \"shipping_address\": \"House 12, Road 5, Dhanmondi, Dhaka\",\n    \"payment_method\": \"sslcommerz\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/storefront/checkout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "storefront", "checkout"]
+						},
+						"description": "Place an order with SSLCommerz payment.\n\n**Response contains:**\n- `payment_url` — open this in a browser to go to SSLCommerz sandbox payment page\n- `session_key` — SSLCommerz session identifier\n- `order` — the created order with items\n\n**Next step:** Copy the `payment_url` and open it in your browser. Use these sandbox test credentials on the SSLCommerz page:\n- Card: `4111111111111111`\n- Exp: any future date\n- CVV: `123`\n- OTP: `123456`"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Verify Payment",
+			"item": [
+				{
+					"name": "Check Order Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customer_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/storefront/orders/{{order_number}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "storefront", "orders", "{{order_number}}"]
+						},
+						"description": "After completing payment on SSLCommerz sandbox, check the order status here.\n\n**Expected after successful payment:**\n- `status`: `confirmed`\n- `payment_status`: `paid`\n- `payment_method`: `sslcommerz`\n\nAlso includes status logs showing the payment confirmation entry."
+					},
+					"response": []
+				},
+				{
+					"name": "Check My Orders List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customer_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/storefront/orders",
+							"host": ["{{base_url}}"],
+							"path": ["api", "storefront", "orders"]
+						},
+						"description": "List all orders for the authenticated customer. Verify the SSLCommerz order appears with correct payment status."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Callback Endpoints (Reference)",
+			"description": "These are the SSLCommerz callback endpoints. You do NOT call these manually — SSLCommerz posts to them automatically after payment. Listed here for reference and debugging.",
+			"item": [
+				{
+					"name": "[Callback] Success",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "tran_id",
+									"value": "{{order_number}}",
+									"description": "Order number used as transaction ID"
+								},
+								{
+									"key": "val_id",
+									"value": "",
+									"description": "Validation ID from SSLCommerz (required for server validation)"
+								},
+								{
+									"key": "amount",
+									"value": "",
+									"description": "Payment amount"
+								},
+								{
+									"key": "status",
+									"value": "VALID",
+									"description": "Payment status from SSLCommerz"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/sslcommerz/success",
+							"host": ["{{base_url}}"],
+							"path": ["api", "sslcommerz", "success"]
+						},
+						"description": "SSLCommerz posts here on successful payment. Validates the payment and marks order as paid + confirmed. Redirects to frontend."
+					},
+					"response": []
+				},
+				{
+					"name": "[Callback] Failure",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "tran_id",
+									"value": "{{order_number}}",
+									"description": "Order number"
+								},
+								{
+									"key": "status",
+									"value": "FAILED",
+									"description": "Payment status"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/sslcommerz/failure",
+							"host": ["{{base_url}}"],
+							"path": ["api", "sslcommerz", "failure"]
+						},
+						"description": "SSLCommerz posts here when payment fails. Marks order payment_status as failed. Redirects to frontend."
+					},
+					"response": []
+				},
+				{
+					"name": "[Callback] Cancel",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "tran_id",
+									"value": "{{order_number}}",
+									"description": "Order number"
+								},
+								{
+									"key": "status",
+									"value": "CANCELLED",
+									"description": "Payment status"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/sslcommerz/cancel",
+							"host": ["{{base_url}}"],
+							"path": ["api", "sslcommerz", "cancel"]
+						},
+						"description": "SSLCommerz posts here when customer cancels payment. Marks order payment_status as cancelled. Redirects to frontend."
+					},
+					"response": []
+				},
+				{
+					"name": "[Callback] IPN",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "tran_id",
+									"value": "{{order_number}}",
+									"description": "Order number"
+								},
+								{
+									"key": "val_id",
+									"value": "",
+									"description": "Validation ID"
+								},
+								{
+									"key": "amount",
+									"value": "",
+									"description": "Payment amount"
+								},
+								{
+									"key": "status",
+									"value": "VALID",
+									"description": "Payment status"
+								},
+								{
+									"key": "verify_sign",
+									"value": "",
+									"description": "Hash for verification"
+								},
+								{
+									"key": "verify_key",
+									"value": "",
+									"description": "Keys used in hash"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/sslcommerz/ipn",
+							"host": ["{{base_url}}"],
+							"path": ["api", "sslcommerz", "ipn"]
+						},
+						"description": "Instant Payment Notification — server-to-server callback from SSLCommerz. Verifies hash, validates payment, and confirms order. Returns JSON (no redirect)."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
